@@ -16,11 +16,13 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/h2-console/**").permitAll() // 1. Permite o H2
-                        .anyRequest().authenticated() // 2. Exige login para todo o resto
+                        .requestMatchers("/h2-console/**","/usuarios",  "/swagger-ui/index.html",
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**").permitAll() // 1. Permite o H2
+                        .anyRequest().permitAll()
                 )
-                .csrf(csrf -> csrf
-                        .ignoringRequestMatchers("/h2-console/**") // 3. Desliga CSRF SÓ para o H2
+                .formLogin(formLogin -> formLogin.disable())
+                .csrf(csrf -> csrf.disable()
                 )
                 .headers(headers -> headers
                         .frameOptions(HeadersConfigurer.FrameOptionsConfig::disable) // 4. Permite iFrames
