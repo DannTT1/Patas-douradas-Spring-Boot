@@ -20,11 +20,11 @@ public class UsuarioEntity {
     @Column(nullable = false, length = 100)
     private String email;
 
-    @Column(length = 255) // <-- Adicionado para bater com a imagem
+    @Column(length = 255)
     private String senha;
 
     @Enumerated(EnumType.STRING) // <-- Adicionado para o Enum
-    @Column(length = 20) // <-- Adicionado para bater com a imagem
+    @Column(length = 10) // <-- Adicionado para bater com a imagem
     private TipoConta tipoconta;
 
     // --- ADICIONADO: O RELACIONAMENTO ---
