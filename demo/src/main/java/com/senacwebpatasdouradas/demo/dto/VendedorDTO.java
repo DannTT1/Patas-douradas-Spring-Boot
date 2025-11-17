@@ -1,21 +1,15 @@
 package com.senacwebpatasdouradas.demo.dto;
 
-import com.senacwebpatasdouradas.demo.entity.ProdutoEntity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import org.hibernate.validator.constraints.Email;
-import org.springframework.data.annotation.Id;
 
 import java.util.List;
 
 public class VendedorDTO {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+
     private int vendedorId;
 
     @NotBlank
@@ -36,8 +30,8 @@ public class VendedorDTO {
     @Email
     private String email;
 
-    @OneToMany
-    private List<ProdutoEntity> produtos;
+
+    private List<ProdutoDTO> produtos;
 
     public VendedorDTO() {
     }
@@ -82,11 +76,11 @@ public class VendedorDTO {
         this.email = email;
     }
 
-    public List<ProdutoEntity> getProdutos() {
+    public List<ProdutoDTO> getProdutos() {
         return produtos;
     }
 
-    public void setProdutos(List<ProdutoEntity> produtos) {
+    public void setProdutos(List<ProdutoDTO> produtos) {
         this.produtos = produtos;
     }
 }

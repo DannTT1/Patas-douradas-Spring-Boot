@@ -6,18 +6,17 @@ import jakarta.persistence.*;
 @Table(name = "item_pedido_contem")
 public class ItemPedidoEntity {
 
-    // Eu adicionei um ID próprio, o que é uma prática
-    // mais simples do que usar Chaves Compostas.
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    // Muitos Itens pertencem a Um Pedido
+
     @ManyToOne
     @JoinColumn(name = "id_pedido", nullable = false)
     private PedidoEntity pedido;
 
-    // Muitos Itens (do mesmo tipo) podem se referir a Um Produto
+
     @ManyToOne
     @JoinColumn(name = "id_produto", nullable = false)
     private ProdutoEntity produto;

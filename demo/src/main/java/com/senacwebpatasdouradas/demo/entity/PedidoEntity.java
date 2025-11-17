@@ -19,15 +19,12 @@ public class PedidoEntity {
     @Column(precision = 10, scale = 2)
     private BigDecimal total;
 
-    // --- RELACIONAMENTOS ---
 
-    // Muitos Pedidos pertencem a Um Usuário
     @ManyToOne
     @JoinColumn(name = "id_usuario", nullable = false) // Esta é a Foreign Key
     private UsuarioEntity usuario;
 
-    // Um Pedido tem muitos Itens
-    // "mappedBy" aponta para o campo "pedido" na ItemPedidoEntity
+
     @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL)
     private List<ItemPedidoEntity> itens;
 

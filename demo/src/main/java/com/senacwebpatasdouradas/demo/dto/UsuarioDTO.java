@@ -1,31 +1,43 @@
 package com.senacwebpatasdouradas.demo.dto;
 
 
-import com.senacwebpatasdouradas.demo.entity.UsuarioEntity;
+import com.senacwebpatasdouradas.demo.entity.TipoConta;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import org.hibernate.validator.constraints.Email;
 
 public class UsuarioDTO {
+
+    @NotNull(message = "O tipo da conta não pode ser nulo")
+    private TipoConta tipoConta;
+
+    public TipoConta getTipoConta() {
+        return tipoConta;
+    }
+
+    public void setTipoConta(TipoConta tipoConta) {
+        this.tipoConta = tipoConta;
+    }
+
     @NotBlank
     @Size(min = 3, max = 64)
     private String username;
 
     private String nome;
-
     @NotBlank
     @Size(max = 100)
     @Email
-    private String email;
 
+    private String email;
     @NotBlank
     @Size(min = 8)
     @Pattern(regexp = "^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[@$!%*?&])[A-Za-z0-9@$!%*?&]{8,}$")
+
+
     private String senha;
-
     private String repeticaoSenha;
-
     public UsuarioDTO() {
 
     }

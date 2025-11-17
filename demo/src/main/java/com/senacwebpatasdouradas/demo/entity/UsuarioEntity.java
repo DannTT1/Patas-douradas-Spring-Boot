@@ -1,11 +1,17 @@
 package com.senacwebpatasdouradas.demo.entity;
 
-import jakarta.persistence.*; // Importe tudo de javax.persistence
-import java.util.List; // Importe o java.util.List
+import jakarta.persistence.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import java.util.Collection;
+import java.util.List;
 
 @Entity
 @Table(name = "usuario")
-public class UsuarioEntity {
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "tipo_usuario", discriminatorType = DiscriminatorType.STRING)
+public abstract class UsuarioEntity implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,29 +29,10 @@ public class UsuarioEntity {
     @Column(length = 255)
     private String senha;
 
-    @Enumerated(EnumType.STRING) // <-- Adicionado para o Enum
-    @Column(length = 10) // <-- Adicionado para bater com a imagem
-    private TipoConta tipoconta;
-
-    // --- ADICIONADO: O RELACIONAMENTO ---
-    // Um Usuário tem muitos Pedidos.
-    // "mappedBy" diz ao JPA que o lado "dono" da relação está no PedidoEntity,
-    // no campo "usuario".
     @OneToMany(mappedBy = "usuario")
     private List<PedidoEntity> pedidos;
 
-    // ... (Seus getters e setters ... )
-
-    // Adicione getters e setters para 'pedidos'
-    public List<PedidoEntity> getPedidos() {
-        return pedidos;
-    }
-
-    public void setPedidos(List<PedidoEntity> pedidos) {
-        this.pedidos = pedidos;
-    }
-
-    // ... (restante dos getters e setters) ...
+    // ... (Seus getters e setters existentes para id, username, nome, email, senha, pedidos) ...
     public UsuarioEntity() {
     }
     public int getId() {
@@ -78,10 +65,42 @@ public class UsuarioEntity {
     public void setSenha(String senha) {
         this.senha = senha;
     }
-    public TipoConta getTipoconta() {
-        return tipoconta;
+    public List<PedidoEntity> getPedidos() {
+        return pedidos;
     }
-    public void setTipoconta(TipoConta tipoconta) {
-        this.tipoconta = tipoconta;
+    public void setPedidos(List<PedidoEntity> pedidos) {
+        this.pedidos = pedidos;
+    }
+
+
+
+    @Override
+    public String getPassword() {
+        return this.senha;
+    }
+
+
+
+    @Override
+    public abstract Collection<? extends GrantedAuthority> getAuthorities();
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
     }
 }

@@ -2,32 +2,71 @@ package com.senacwebpatasdouradas.demo.securityconfig;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.Customizer;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 public class SecurityConfig {
 
+
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public AuthenticationProvider authenticationProvider(UserDetailsService userDetailsService) { // <-- 3. RECEBEMOS AQUI
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+        authProvider.setUserDetailsService(userDetailsService); // Usamos o parâmetro
+        authProvider.setPasswordEncoder(passwordEncoder()); // Usamos o método bean
+        return authProvider;
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+        return config.getAuthenticationManager();
+    }
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http,
+                                                   JwtAuthenticationFilter jwtAuthFilter,
+                                                   AuthenticationProvider authenticationProvider) throws Exception {
+
         http
+                .csrf(AbstractHttpConfigurer::disable)
+
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/h2-console/**","/usuarios",  "/swagger-ui/index.html",
-                                "/swagger-ui/**",
-                                "/v3/api-docs/**").permitAll() // 1. Permite o H2
-                        .anyRequest().permitAll()
+                        .requestMatchers("/usuarios", "/usuarios/login").permitAll()
+                        .requestMatchers("/h2-console/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/produtos", "/produtos/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/produtos").hasRole("VENDEDOR")
+                        .requestMatchers(HttpMethod.PUT, "/produtos/**").hasRole("VENDEDOR")
+                        .requestMatchers(HttpMethod.DELETE, "/produtos/**").hasRole("VENDEDOR")
+                        .requestMatchers("/carrinho/**").hasRole("CLIENTE")
+                        .requestMatchers("/pedidos/**").hasRole("CLIENTE")
+                        .anyRequest().authenticated()
                 )
-                .formLogin(formLogin -> formLogin.disable())
-                .csrf(csrf -> csrf.disable()
-                )
-                .headers(headers -> headers
-                        .frameOptions(HeadersConfigurer.FrameOptionsConfig::disable) // 4. Permite iFrames
-                )
-                .httpBasic(Customizer.withDefaults()); // 5. Mantém o login pop-up
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+
+                .authenticationProvider(authenticationProvider)
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+
+        http.headers(headers -> headers.frameOptions(frame -> frame.disable()));
 
         return http.build();
     }

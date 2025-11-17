@@ -1,28 +1,23 @@
 package com.senacwebpatasdouradas.demo.entity;
 
-import jakarta.persistence.Column;
+import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Table;
-import org.springframework.data.annotation.Id;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
-
-// pensando e como fazer a heranca de usuario para cliente
+import java.util.Collection;
+import java.util.List;
 
 @Entity
-@Table(name = "clientes")
+@DiscriminatorValue("CLIENTE")
 public class ClienteEntity extends UsuarioEntity {
 
     public ClienteEntity() {
-
     }
 
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
 
-
-
-
-
+        return List.of(new SimpleGrantedAuthority("ROLE_CLIENTE"));
+    }
 }
-
-

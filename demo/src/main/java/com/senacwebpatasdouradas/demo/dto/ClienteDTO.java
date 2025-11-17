@@ -1,18 +1,14 @@
 package com.senacwebpatasdouradas.demo.dto;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import org.hibernate.validator.constraints.Email;
-import org.springframework.data.annotation.Id;
 
 public class ClienteDTO {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+
     private int clienteId;
 
     @NotBlank
