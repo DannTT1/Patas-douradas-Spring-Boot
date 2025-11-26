@@ -22,7 +22,6 @@ document.getElementById("form-login").addEventListener("submit", async function(
             body: JSON.stringify(payload)
         });
 
-        // 2. Verifica se deu certo
         if (response.ok) {
             const mensagemTexto = await response.text(); 
             console.log("Sucesso:", mensagemTexto);
@@ -31,8 +30,6 @@ document.getElementById("form-login").addEventListener("submit", async function(
 
             alert("Login realizado! Redirecionando...");
             
-            // CORREÇÃO AQUI: 
-            // Se o seu HTML usa ../../index.html, o JS tem que usar o mesmo caminho
             window.location.href = "../../index.html"; 
         } else {
             const erroTexto = await response.text();
