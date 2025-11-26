@@ -25,7 +25,7 @@ async function carregarDashboard() {
     } catch (erro) {
         console.error("Erro no Dashboard:", erro);
         // Exibe "Erro" nos cards para visualização imediata
-        document.getElementById("valor-faturamento").innerText = "Erro";
+        document.getElementById("valor-faturamento").innerText = "Nenhuma Venda encontrada";
         alert("Não foi possível carregar os dados de vendas.");
     }
 }
