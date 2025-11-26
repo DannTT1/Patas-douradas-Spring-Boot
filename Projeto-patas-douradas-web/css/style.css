@@ -579,3 +579,82 @@ button[type="submit"]:hover,
     object-fit: contain;
     background-color: white;
 }
+
+/* =========================================
+   ESTILOS ESPECÍFICOS PARA LOGIN E CADASTRO
+   ========================================= */
+
+.login-container {
+    max-width: 450px;
+    margin: 60px auto;
+    padding: 40px;
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    text-align: left;
+}
+
+.login-container h2 {
+    color: var(--cor-primaria);
+    margin-bottom: 25px;
+    text-align: center;
+}
+
+/* Inputs do Login */
+.login-container label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #555;
+}
+
+.login-container input {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 20px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 1rem;
+    background-color: #fafafa;
+}
+
+.login-container input:focus {
+    border-color: var(--cor-primaria);
+    background-color: white;
+    outline: none;
+}
+
+/* Botão de Entrar */
+.login-container button {
+    width: 100%;
+    padding: 12px;
+    background-color: var(--cor-primaria);
+    color: white;
+    font-size: 1.1rem;
+    font-weight: bold;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.login-container button:hover {
+    background-color: var(--cor-primaria-hover);
+}
+
+/* Links (Esqueci senha / Cadastrar) */
+.login-container p {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.login-container a {
+    color: var(--cor-primaria);
+    font-weight: bold;
+}
+
+.login-container a:hover {
+    text-decoration: underline;
+}
