@@ -40,9 +40,7 @@ document.getElementById("formularioCadastro").addEventListener("submit", async f
             body: JSON.stringify(objetoCadastro)
         });
 
-        // --- TRATAMENTO MANUAL DA RESPOSTA (Sem usar handleResponse) ---
         
-        // Se o servidor retornou sucesso (Código 200 ou 201)
         if (response.ok) {
             // Tenta ler se veio algum JSON de resposta, senão ignora
             const jsonResposta = await response.json().catch(() => {});

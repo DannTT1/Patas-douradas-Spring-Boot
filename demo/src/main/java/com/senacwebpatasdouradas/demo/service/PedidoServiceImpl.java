@@ -34,11 +34,22 @@ public class PedidoServiceImpl implements PedidoService {
     private ProdutoRepository produtoRepository;
 
     @Override
-    @Transactional
+    public List<PedidoDTO> listarPorCliente(int clienteId) {
+        List<PedidoEntity> pedidos = pedidoRepository.findByUsuarioId(clienteId);
+        List<PedidoDTO> dtos = new ArrayList<>();
+        for (PedidoEntity pedido : pedidos) {
+            dtos.add(toDto(pedido));
+        }
+        return dtos;
+    }
+
+    @Override
+    @Transactional // ESSENCIAL: Garante que o estoque só baixa se o pedido for salvo
     public PedidoDTO createPedido(PedidoCriadoDTO dto) {
 
+        // 1. Verifica Usuário
         UsuarioEntity usuario = usuarioRepository.findById(dto.getUsuarioId())
-                .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado com ID: " + dto.getUsuarioId()));
+                .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado (ID: " + dto.getUsuarioId() + ")"));
 
         PedidoEntity pedido = new PedidoEntity();
         pedido.setUsuario(usuario);
@@ -47,19 +58,23 @@ public class PedidoServiceImpl implements PedidoService {
         BigDecimal totalGeral = BigDecimal.ZERO;
         List<ItemPedidoEntity> itensDoPedido = new ArrayList<>();
 
+        // 2. Processa Itens e Estoque
         for (var itemDTO : dto.getItens()) {
             ProdutoEntity produto = produtoRepository.findById(itemDTO.getProdutoId())
-                    .orElseThrow(() -> new EntityNotFoundException("Produto não encontrado com ID: " + itemDTO.getProdutoId()));
+                    .orElseThrow(() -> new EntityNotFoundException("Produto não encontrado (ID: " + itemDTO.getProdutoId() + ")"));
 
+            // VALIDAÇÃO DE ESTOQUE
             if (produto.getEstoque() < itemDTO.getQuantidade()) {
-                throw new RuntimeException("Estoque insuficiente para o produto: " + produto.getNome());
+                throw new RuntimeException("Estoque insuficiente para: " + produto.getNome() +
+                        ". Disponível: " + produto.getEstoque());
             }
+
+            // DEDUZ O ESTOQUE
             produto.setEstoque(produto.getEstoque() - itemDTO.getQuantidade());
-            produtoRepository.save(produto);
+            produtoRepository.save(produto); // Atualiza no banco imediatamente
 
             BigDecimal subtotal = produto.getPrecoUnitario().multiply(BigDecimal.valueOf(itemDTO.getQuantidade()));
             totalGeral = totalGeral.add(subtotal);
-
 
             ItemPedidoEntity itemPedido = new ItemPedidoEntity();
             itemPedido.setProduto(produto);
