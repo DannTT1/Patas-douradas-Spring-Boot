@@ -16,7 +16,7 @@ public class ClienteEntity extends UsuarioEntity {
     }
 
     @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
+    public List<SimpleGrantedAuthority> getAuthorities() {
 
         return List.of(new SimpleGrantedAuthority("ROLE_CLIENTE"));
     }

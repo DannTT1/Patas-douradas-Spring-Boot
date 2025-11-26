@@ -54,7 +54,7 @@ public class UsuarioServiceImpl implements UsuarioService, UserDetailsService {
     }
 
     @Override
-    public String login(LoginDTO dto) { // Mudança no retorno
+    public Object login(LoginDTO dto) {
         Authentication authentication;
         try {
             authentication = authenticationManager.authenticate(
@@ -64,13 +64,38 @@ public class UsuarioServiceImpl implements UsuarioService, UserDetailsService {
             throw new BadCredentialsException("Usuário ou senha inválidos");
         }
 
-        // Cria a sessão (Cookie)
+        // ... lógica de salvar contexto (mantida igual) ...
         SecurityContext context = SecurityContextHolder.createEmptyContext();
         context.setAuthentication(authentication);
         SecurityContextHolder.setContext(context);
         securityContextRepository.saveContext(context, request, response);
 
-        return "Login realizado com sucesso!"; // Retorna apenas String
+        Object principal = authentication.getPrincipal();
+
+        // CORREÇÃO AQUI
+        if (principal instanceof ClienteEntity entity) {
+            UsuarioDTO usuarioDTO = new UsuarioDTO();
+            usuarioDTO.setNome(entity.getNome());
+            usuarioDTO.setEmail(entity.getEmail());
+            
+            // Como sabemos que é uma ClienteEntity, setamos o ENUM diretamente:
+            // Certifique-se de importar o seu Enum TipoConta
+            usuarioDTO.setTipoConta(TipoConta.CLIENTE); 
+            
+            return usuarioDTO;
+        } 
+        
+        // Se você tiver outros tipos de usuário (ex: Funcionario), adicione outro if:
+        /*
+        else if (principal instanceof FuncionarioEntity entity) {
+            UsuarioDTO usuarioDTO = new UsuarioDTO();
+            // ... setar dados ...
+            usuarioDTO.setTipoConta(TipoConta.FUNCIONARIO); // ou ADMIN
+            return usuarioDTO;
+        }
+        */
+
+        throw new RuntimeException("Tipo de usuário desconhecido ou não suportado");
     }
 
 

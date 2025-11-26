@@ -22,12 +22,16 @@ public class UsuarioController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody LoginDTO dto) {
+    public ResponseEntity<?> login(@RequestBody LoginDTO dto) {
         try {
-            String mensagem = usuarioService.login(dto);
-            return ResponseEntity.ok(mensagem);
-        } catch (Exception e) { // Mudei para Exception genérica para pegar qualquer erro
+            UsuarioDTO usuario = (UsuarioDTO) usuarioService.login(dto);
+            String permissao = usuario.getTipoConta().toString();
+            return ResponseEntity.ok(new SaidaLogin(usuario.getNome(), permissao));
+        } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Erro: " + e.getMessage());
         }
     }
+    
+   public record SaidaLogin(String nome, String permissao) {
+   }
 }

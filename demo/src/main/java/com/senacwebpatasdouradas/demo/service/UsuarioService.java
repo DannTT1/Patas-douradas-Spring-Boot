@@ -12,5 +12,5 @@ public interface UsuarioService {
     UsuarioDTO create(UsuarioDTO usuario);
     Boolean existByEmail(String email);
     UsuarioDTO update(int id, String novoNome, String novaSenha);
-    String login(LoginDTO dto);
+    Object login(LoginDTO dto);
 }

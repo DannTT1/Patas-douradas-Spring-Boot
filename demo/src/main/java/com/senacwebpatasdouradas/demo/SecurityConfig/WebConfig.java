@@ -1,4 +1,4 @@
-package com.senacwebpatasdouradas.demo.config; // <--- OBRIGATÓRIO SER .config
+package com.senacwebpatasdouradas.demo.SecurityConfig; // <--- OBRIGATÓRIO SER .config
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
