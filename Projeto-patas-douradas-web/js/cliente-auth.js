@@ -1,55 +1,54 @@
-document.addEventListener("DOMContentLoaded", () => {
-    // 1. Primeiro: Verifica se pode estar aqui
-    verificarPermissaoDeAcesso();
+// js/cliente-auth.js
 
+document.addEventListener("DOMContentLoaded", () => {
+    // 1. Atualiza o cabeçalho (Menu) para mostrar Login ou Sair
     atualizarMenuNavegacao();
+
+    // 2. Configura o bloqueio do botão da Home (Se ele existir)
+    configurarBotaoHome();
 });
 
-function verificarPermissaoDeAcesso() {
-    const usuarioLogado = localStorage.getItem("usuarioLogado");
-    const caminhoAtual = window.location.pathname;
+// --- LÓGICA DO BOTÃO DA HOME (O BLOQUEIO) ---
+function configurarBotaoHome() {
+    // Busca o botão pelo ID que colocamos no HTML
+    const btnHome = document.getElementById("btn-ver-produtos");
 
-    // Lista de páginas que NÃO precisam de login (Públicas)
-    const paginasPublicas = [
-        "index.html",
-        "login.html",
-        "cadastro.html",
-        "/" // Raiz do site
-    ];
+    // Só adiciona o evento se o botão existir (ou seja, se estiver na index.html)
+    if (btnHome) {
+        btnHome.addEventListener("click", (event) => {
+            event.preventDefault(); // Impede que o link abra imediatamente
 
-    // Verifica se a página atual é pública
-    // (O código abaixo verifica se o nome do arquivo atual está na lista de permitidos)
-    const ehPublica = paginasPublicas.some(pagina => caminhoAtual.endsWith(pagina));
+            const usuarioLogado = localStorage.getItem("usuarioLogado");
 
-    // Se a página NÃO é pública e o usuário NÃO está logado...
-    if (!ehPublica && !usuarioLogado) {
-        alert("🔒 Conteúdo exclusivo!\nPor favor, faça login para acessar nossos produtos.");
-        
-        // Redireciona para o Login (ajuste o caminho conforme sua estrutura)
-        // Se estiver dentro de pages/cliente/, volta para ../login-cadastro/login.html
-        if (caminhoAtual.includes("/pages/")) {
-            window.location.href = "../login-cadastro/login.html";
-        } else {
-            window.location.href = "pages/login-cadastro/login.html";
-        }
+            if (usuarioLogado) {
+                // --- CENÁRIO 1: LOGADO (LIBERADO) ---
+                // Redireciona para a lista de produtos
+                window.location.href = "pages/cliente/produtos-lista.html";
+            } else {
+                // --- CENÁRIO 2: BLOQUEADO ---
+                // Mostra o aviso e manda para o login
+                alert("🔒 Conteúdo Exclusivo!\n\nVocê precisa fazer login para acessar a loja e ver os produtos.");
+                window.location.href = "pages/login-cadastro/login.html";
+            }
+        });
     }
 }
 
+// --- LÓGICA DO MENU (CABEÇALHO) ---
 function atualizarMenuNavegacao() {
     const navMenu = document.querySelector("header .menu");
     if (!navMenu) return; 
 
     const usuarioLogado = JSON.parse(localStorage.getItem("usuarioLogado"));
     
-    // Caminhos relativos (Lógica para saber onde voltar)
+    // Define os caminhos corretos dependendo de onde o arquivo está rodando
     const isPaginaInterna = window.location.pathname.includes("/pages/");
     const raiz = isPaginaInterna ? "../../" : "";
     const prefixoPaginas = isPaginaInterna ? "" : "pages/cliente/";
-    // Link de login varia dependendo de onde estamos
-    const linkLogin = isPaginaInterna ? "../login-cadastro/login.html" : "pages/login-cadastro/login.html";
+    const prefixoLogin = isPaginaInterna ? "../login-cadastro/" : "pages/login-cadastro/";
 
     if (usuarioLogado) {
-        // --- CLIENTE LOGADO (Vê tudo) ---
+        // --- USUÁRIO LOGADO ---
         const nome = usuarioLogado.nome.split(" ")[0]; 
 
         navMenu.innerHTML = `
@@ -61,23 +60,32 @@ function atualizarMenuNavegacao() {
             <button class="btn-logout" onclick="logoutCliente()">Sair</button>
         `;
     } else {
-        // --- VISITANTE (Só vê Home e Login) ---
+        // --- VISITANTE (NÃO LOGADO) ---
+        // Note que aqui ele vê os links, mas o botão "Ver Produtos" da Home estará protegido pela função acima.
         navMenu.innerHTML = `
             <a href="${raiz}index.html">Home</a>
-            <a href="${linkLogin}" class="btn-login-destaque">Entrar / Cadastrar</a>
+            <a href="${linkLoginBotao(prefixoLogin)}" class="btn-login-destaque">Entrar / Cadastrar</a>
         `;
     }
 }
 
+// Auxiliar para gerar o link de login correto
+function linkLoginBotao(prefixo) {
+    return prefixo + "login.html";
+}
+
+// --- FUNÇÃO DE LOGOUT ---
 function logoutCliente() {
     localStorage.removeItem("usuarioLogado");
-    // Ao sair, manda para a Home pública
+    
+    // Ao sair, redireciona para a Home pública
     const isPaginaInterna = window.location.pathname.includes("/pages/");
     const destino = isPaginaInterna ? "../../index.html" : "index.html";
+    
     window.location.href = destino;
 }
 
-// Estilo do botão
+// --- ESTILO DO BOTÃO DE LOGIN (INJETADO VIA JS) ---
 const styleBtn = document.createElement('style');
 styleBtn.innerHTML = `
     .btn-login-destaque {
