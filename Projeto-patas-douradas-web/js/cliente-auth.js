@@ -102,3 +102,112 @@ styleBtn.innerHTML = `
     }
 `;
 document.head.appendChild(styleBtn);
+
+
+document.addEventListener("DOMContentLoaded", () => {
+    atualizarMenuNavegacao();
+    configurarBloqueiosHome();
+});
+
+function configurarBloqueiosHome() {
+    // 1. Bloqueio do Botão Principal "Ver Produtos"
+    const btnHome = document.getElementById("btn-ver-produtos");
+    if (btnHome) {
+        btnHome.addEventListener("click", bloquearAcaoSeNaoLogado);
+    }
+
+    // 2. Bloqueio dos Cliques nas Imagens/Links dos Produtos (Vitrine)
+    const containerProdutos = document.getElementById("produtos-destaque-lista");
+    
+    if (containerProdutos) {
+        // Usamos 'addEventListener' no container para pegar cliques em qualquer produto dentro dele
+        containerProdutos.addEventListener("click", (event) => {
+            
+            // Verifica se clicou em uma imagem ou link (que não seja o botão de carrinho)
+            // O botão de carrinho já tem a trava dele no outro arquivo
+            const clicouEmLink = event.target.closest('a');
+            const clicouEmBotaoCarrinho = event.target.closest('.adicionar-carrinho-btn');
+
+            // Se clicou num link (foto/nome) E NÃO foi no botão de carrinho...
+            if (clicouEmLink && !clicouEmBotaoCarrinho) {
+                bloquearAcaoSeNaoLogado(event);
+            }
+        });
+    }
+}
+
+// Função auxiliar que faz a verificação
+function bloquearAcaoSeNaoLogado(event) {
+    const usuarioLogado = localStorage.getItem("usuarioLogado");
+
+    if (usuarioLogado) {
+        // Se estiver logado, deixa o clique acontecer normalmente (não faz nada)
+        // O link vai abrir a página de detalhes ou produtos.
+        return; 
+    } else {
+        // Se NÃO estiver logado:
+        event.preventDefault(); // Impede de abrir a página
+        event.stopPropagation(); // Impede outros scripts de rodarem
+        
+        alert("🔒 Conteúdo Exclusivo!\n\nVocê precisa fazer login para ver os detalhes ou comprar.");
+        
+        // Redireciona para o login
+        const isPaginaInterna = window.location.pathname.includes("/pages/");
+        const caminhoLogin = isPaginaInterna ? "../login-cadastro/login.html" : "pages/login-cadastro/login.html";
+        window.location.href = caminhoLogin;
+    }
+}
+
+// --- LÓGICA DO MENU (Mantida igual) ---
+function atualizarMenuNavegacao() {
+    const navMenu = document.querySelector("header .menu");
+    if (!navMenu) return; 
+
+    const usuarioLogado = JSON.parse(localStorage.getItem("usuarioLogado"));
+    
+    const isPaginaInterna = window.location.pathname.includes("/pages/");
+    const raiz = isPaginaInterna ? "../../" : "";
+    const prefixoPaginas = isPaginaInterna ? "" : "pages/cliente/";
+    const prefixoLogin = isPaginaInterna ? "../login-cadastro/" : "pages/login-cadastro/";
+
+    if (usuarioLogado) {
+        const nome = usuarioLogado.nome.split(" ")[0]; 
+        navMenu.innerHTML = `
+            <span style="color: white; margin-right: 15px;">Olá, <b>${nome}</b></span>
+            <a href="${raiz}index.html">Home</a>
+            <a href="${prefixoPaginas}produtos-lista.html">Produtos</a>
+            <a href="${prefixoPaginas}carrinho.html">Carrinho</a>
+            <a href="${prefixoPaginas}pedidos-cliente.html">Meus Pedidos</a>
+            <button class="btn-logout" onclick="logoutCliente()">Sair</button>
+        `;
+    } else {
+        navMenu.innerHTML = `
+            <a href="${raiz}index.html">Home</a>
+            <a href="${linkLoginBotao(prefixoLogin)}" class="btn-login-destaque">Entrar / Cadastrar</a>
+        `;
+    }
+}
+
+function linkLoginBotao(prefixo) { return prefixo + "login.html"; }
+
+function logoutCliente() {
+    localStorage.removeItem("usuarioLogado");
+    const isPaginaInterna = window.location.pathname.includes("/pages/");
+    const destino = isPaginaInterna ? "../../index.html" : "index.html";
+    window.location.href = destino;
+}
+
+// Estilo do botão Entrar (Injetado)
+const styleBtn = document.createElement('style');
+styleBtn.innerHTML = `
+    .btn-login-destaque {
+        background-color: white !important;
+        color: var(--cor-primaria) !important;
+        padding: 8px 15px;
+        border-radius: 20px;
+        font-weight: bold;
+        transition: transform 0.2s;
+    }
+    .btn-login-destaque:hover { transform: scale(1.05); color: #e88e00 !important; }
+`;
+document.head.appendChild(styleBtn);

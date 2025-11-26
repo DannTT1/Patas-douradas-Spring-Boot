@@ -72,3 +72,33 @@ async function adicionarProdutoAoCarrinho(produtoId) {
 
 // Inicia a escuta
 document.addEventListener('DOMContentLoaded', inicializarBotoesAdicionar);
+
+
+// js/carrinho-eventos.js
+
+// Variável para simular produtos se necessário (Mantenha se você usa Mock)
+// ...
+
+// Função global que os botões chamam
+window.adicionarProdutoAoCarrinho = async function(produtoId) {
+    
+    // --- 🔒 TRAVA DE SEGURANÇA (Adicionar ao Carrinho) ---
+    const usuarioLogado = localStorage.getItem("usuarioLogado");
+    
+    if (!usuarioLogado) {
+        alert("🔒 Você precisa entrar na sua conta!\n\nFaça login ou cadastre-se para comprar este produto.");
+        
+        // Redireciona para o login (ajuste o caminho se necessário)
+        const isPaginaInterna = window.location.pathname.includes("/pages/");
+        const caminhoLogin = isPaginaInterna ? "../login-cadastro/login.html" : "pages/login-cadastro/login.html";
+        window.location.href = caminhoLogin;
+        
+        return; // <--- O CÓDIGO PARA AQUI. Nada é adicionado.
+    }
+    // -----------------------------------------------------
+
+    console.log(`Usuário logado. Adicionando produto ${produtoId}...`);
+
+    // ... (Mantenha aqui todo o resto do seu código original de adicionar: fetch, localStorage, etc.) ...
+    // ... Código que busca no Java e salva no carrinho ...
+};
